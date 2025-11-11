@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 270 90% 98%; /* Light Pastel Purple */
+    --foreground: 270 10% 20%; /* Dark Purple Text */
+    
+    --card: 270 50% 99%;
+    --card-foreground: 270 10% 15%;
+    
+    --popover: 270 90% 98%;
+    --popover-foreground: 270 10% 20%;
+    
+    --primary: 330 80% 85%; /* Light Pastel Pink - NEW */
+    --primary-foreground: 330 10% 20%; /* Dark Pink/Purple Text - NEW */
+    
+    --secondary: 270 20% 95%;
+    --secondary-foreground: 270 10% 20%;
+    
+    --muted: 270 20% 95%;
+    --muted-foreground: 270 5% 50%;
+    
+    --accent: 262.1 83.3% 57.8%; /* Soft Pastel Purple (Old Primary) - NEW */
+    --accent-foreground: 0 0% 98%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 270 20% 90%;
+    --input: 270 20% 92%;
+    --ring: 330 80% 85%; /* Light Pastel Pink - NEW */
+    
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 270 10% 4%; /* Dark Purple */
+    --foreground: 270 10% 95%;
+    
+    --card: 270 10% 8%;
+    --card-foreground: 270 10% 95%;
+    
+    --popover: 270 10% 4%;
+    --popover-foreground: 270 10% 95%;
+    
+    --primary: 330 70% 65%; /* Darker Pink - NEW */
+    --primary-foreground: 270 10% 98%;
+    
+    --secondary: 270 10% 12%;
+    --secondary-foreground: 270 10% 95%;
+    
+    --muted: 270 10% 12%;
+    --muted-foreground: 270 5% 65%;
+    
+    --accent: 262.1 83.3% 67.8%; /* Lighter purple for dark mode - NEW */
+    --accent-foreground: 270 10% 98%;
+    
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 270 10% 15%;
+    --input: 270 10% 15%;
+    --ring: 330 70% 65%; /* Darker Pink - NEW */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+   .bg-grid-pattern {
+    background-image:
+      linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .animate-float-1 { animation: float-1 6s ease-in-out infinite; }
+  .animate-float-2 { animation: float-2 7s ease-in-out infinite; }
+  .animate-float-3 { animation: float-3 8s ease-in-out infinite; }
+  .animate-float-4 { animation: float-4 9s ease-in-out infinite; }
+
+  @keyframes float-1 {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+  }
+  @keyframes float-2 {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(25px) rotate(-8deg); }
+  }
+  @keyframes float-3 {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(10deg); }
+  }
+  @keyframes float-4 {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(20px) rotate(-5deg); }
+  }
+
+  /* Animation for the headline */
+  .animate-gradient-text {
+    background-image: linear-gradient(
+      -45deg,
+      hsl(var(--foreground)) 25%,
+      hsl(var(--primary)) 50%,
+      hsl(var(--accent)) 75%,
+      hsl(var(--foreground)) 100%
+    );
+    background-size: 400% 400%;
+    animation: gradient-flow 5s ease-in-out infinite, text-focus-in 1s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  @keyframes gradient-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes text-focus-in {
+    0% {
+      -webkit-filter: blur(12px);
+              filter: blur(12px);
+      opacity: 0;
+    }
+    100% {
+      -webkit-filter: blur(0px);
+              filter: blur(0px);
+      opacity: 1;
+    }
+  }
+}
