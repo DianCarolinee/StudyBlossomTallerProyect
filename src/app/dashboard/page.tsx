@@ -28,6 +28,8 @@ const XP_MAP: { [key: string]: number } = {
   explanation: 10,
   elaboration: 15,
   evaluation: 20,
+  'voice-tutor': 25,  // NUEVO: Mayor XP por ser interactivo
+  'video': 15,        // NUEVO: XP por generar contenido
 };
 
 const LEVELS = [

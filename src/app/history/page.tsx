@@ -13,7 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Book, Sparkles, Volume2, Repeat, LoaderCircle, Trash2, BrainCircuit, Timer } from "lucide-react";
+import { ArrowLeft, Book, Sparkles, Volume2, Repeat, LoaderCircle, Trash2, BrainCircuit, Timer, Mic, Video } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Logo } from "@/components/icons";
@@ -31,11 +31,13 @@ import {
 
 
 const modeIcons: { [key: string]: React.ReactElement } = {
-  text: <Book className="h-5 w-5" />,
-  visual: <Sparkles className="h-5 w-5" />,
-  audio: <Volume2 className="h-5 w-5" />,
-  map: <BrainCircuit className="h-5 w-5" />,
-  pomodoro: <Timer className="h-5 w-5" />,
+    text: <Book className="h-5 w-5" />,
+    visual: <Sparkles className="h-5 w-5" />,
+    audio: <Volume2 className="h-5 w-5" />,
+    map: <BrainCircuit className="h-5 w-5" />,
+    pomodoro: <Timer className="h-5 w-5" />,
+    "voice-tutor": <Mic className="h-5 w-5" />,
+    video: <Video className="h-5 w-5" />,
 };
 
 const modeLabels: { [key: string]: string } = {
@@ -44,6 +46,8 @@ const modeLabels: { [key: string]: string } = {
     audio: "Audio",
     map: "Mapa",
     pomodoro: "Pomodoro",
+    "voice-tutor": "Tutor de Voz",
+    video: "Video",
 }
 
 function getStudyHistory(): StudySessionEntry[] {

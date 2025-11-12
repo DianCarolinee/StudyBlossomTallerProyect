@@ -10,7 +10,10 @@ import { generatePomodoroRecommendations } from "@/ai/flows/generate-pomodoro-re
 import { generateAidaEngagement } from "@/ai/flows/generate-aida-engagement-flow";
 import type { QuizQuestion } from "@/lib/types";
 import type { FeynmanExplanationOutput, FeynmanAnalysisOutput } from "@/ai/flows/generate-feynman-explanation-flow";
-
+import type { VoiceTutorOutput, VoiceTutorInput } from "@/ai/flows/voice-tutor-flow";
+import type { GenerateEducationalVideoOutput, GenerateEducationalVideoInput } from "@/ai/flows/generate-educational-video-flow";
+import { askVoiceTutor } from "@/ai/flows/voice-tutor-flow";
+import { generateEducationalVideo } from "@/ai/flows/generate-educational-video-flow";
 
 export async function getFlashcards(
   topic: string
@@ -155,6 +158,52 @@ export async function getAidaEngagement(
     console.error(e);
     return {
       error: "An unexpected error occurred while generating engagement content.",
+    };
+  }
+}
+
+export async function getVoiceTutorResponse(
+    input: VoiceTutorInput
+): Promise<VoiceTutorOutput | { error: string }> {
+  if (!input.topic || !input.userQuestion) {
+    return { error: "Se requiere un tema y una pregunta." };
+  }
+
+  try {
+    const result = await askVoiceTutor(input);
+    if (!result || !result.textResponse) {
+      return {
+        error: "No se pudo generar una respuesta. Por favor, intenta de nuevo.",
+      };
+    }
+    return result;
+  } catch (e: any) {
+    console.error('Error en getVoiceTutorResponse:', e);
+    return {
+      error: e.message || "Ocurrió un error inesperado al procesar tu pregunta.",
+    };
+  }
+}
+
+export async function getEducationalVideo(
+    input: GenerateEducationalVideoInput
+): Promise<GenerateEducationalVideoOutput | { error: string }> {
+  if (!input.topic) {
+    return { error: "Se requiere un tema para generar el video." };
+  }
+
+  try {
+    const result = await generateEducationalVideo(input);
+    if (!result || !result.script) {
+      return {
+        error: "No se pudo generar el video. El tema podría ser muy complejo o ambiguo.",
+      };
+    }
+    return result;
+  } catch (e: any) {
+    console.error('Error en getEducationalVideo:', e);
+    return {
+      error: e.message || "Ocurrió un error inesperado al generar el video.",
     };
   }
 }

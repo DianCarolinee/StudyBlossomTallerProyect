@@ -10,3 +10,5 @@ import "./flows/generate-concept-map-flow";
 import "./flows/generate-quiz-flow";
 import "./flows/generate-pomodoro-recommendations-flow";
 import "./flows/generate-aida-engagement-flow";
+import "./flows/voice-tutor-flow";
+import "./flows/generate-educational-video-flow";

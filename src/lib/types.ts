@@ -35,3 +35,12 @@ export interface QuizQuestion {
   options: string[];
   correctAnswer: string;
 }
+
+export type StudyMode =
+    | 'text'
+    | 'visual'
+    | 'audio'
+    | 'map'
+    | 'pomodoro'
+    | 'voice-tutor'
+    | 'video';
