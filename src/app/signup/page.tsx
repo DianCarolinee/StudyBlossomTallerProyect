@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -33,10 +32,42 @@ import { LoaderCircle } from "lucide-react";
 import { Logo } from "@/components/icons";
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Por favor, introduce un email válido." }),
+  email: z
+    .string()
+    .min(1, { message: "El email es requerido." })
+    .max(25, { message: "El email no puede tener más de 25 caracteres." })
+    .email({ message: "Por favor, introduce un email válido." })
+    .refine(
+      (email) => {
+        const localPart = email.split("@")[0];
+        return localPart.length >= 5;
+      },
+      { message: "El email debe tener al menos 5 caracteres antes del @." }
+    )
+    .refine(
+      (email) => {
+        // Validar que el dominio tenga al menos un punto
+        const domain = email.split("@")[1];
+        return domain && domain.includes(".");
+      },
+      { message: "El dominio del email debe ser válido." }
+    ),
   password: z
     .string()
-    .min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
+    .min(6, { message: "La contraseña debe tener al menos 6 caracteres." })
+    .max(15, { message: "La contraseña no puede tener más de 15 caracteres." })
+    .regex(/[A-Z]/, {
+      message: "La contraseña debe contener al menos una letra mayúscula.",
+    })
+    .regex(/[a-z]/, {
+      message: "La contraseña debe contener al menos una letra minúscula.",
+    })
+    .regex(/[0-9]/, {
+      message: "La contraseña debe contener al menos un número.",
+    })
+    .regex(/[^A-Za-z0-9]/, {
+      message: "La contraseña debe contener al menos un carácter especial.",
+    }),
 });
 
 export default function SignupPage() {
@@ -111,6 +142,7 @@ export default function SignupPage() {
                         <Input
                           type="email"
                           placeholder="tu@email.com"
+                          maxLength={25}
                           {...field}
                         />
                       </FormControl>
@@ -128,6 +160,7 @@ export default function SignupPage() {
                         <Input
                           type="password"
                           placeholder="Mínimo 6 caracteres"
+                          maxLength={15}
                           {...field}
                         />
                       </FormControl>
