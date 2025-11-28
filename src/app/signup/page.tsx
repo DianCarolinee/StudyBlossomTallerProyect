@@ -46,6 +46,43 @@ const formSchema = z.object({
     )
     .refine(
       (email) => {
+        // Validar que contenga al menos una letra (no solo números)
+        const localPart = email.split("@")[0];
+        return /[a-zA-Z]/.test(localPart);
+      },
+      { message: "El email debe contener al menos una letra." }
+    )
+    .refine(
+      (email) => {
+        // Validar que no sean todos números antes del @
+        const localPart = email.split("@")[0];
+        return !/^\d+$/.test(localPart);
+      },
+      { message: "El email no puede ser solo números." }
+    )
+    .refine(
+      (email) => {
+        // Validar formato general: letras, números, puntos, guiones
+        const localPart = email.split("@")[0];
+        return /^[a-zA-Z0-9._-]+$/.test(localPart);
+      },
+      { message: "El email contiene caracteres no válidos." }
+    )
+    .refine(
+      (email) => {
+        // Validar que el dominio sea reconocido
+        const domain = email.split("@")[1]?.toLowerCase();
+        const validDomains = [
+          "gmail.com", "hotmail.com", "outlook.com", "yahoo.com",
+          "icloud.com", "live.com", "msn.com", "aol.com",
+          "protonmail.com", "zoho.com"
+        ];
+        return validDomains.includes(domain);
+      },
+      { message: "Por favor, usa un email de un proveedor reconocido (Gmail, Hotmail, Yahoo, etc)." }
+    )
+    .refine(
+      (email) => {
         // Validar que el dominio tenga al menos un punto
         const domain = email.split("@")[1];
         return domain && domain.includes(".");
