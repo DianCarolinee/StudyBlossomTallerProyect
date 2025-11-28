@@ -35,7 +35,7 @@ const formSchema = z.object({
   email: z
     .string()
     .min(1, { message: "El email es requerido." })
-    .max(25, { message: "El email no puede tener más de 25 caracteres." })
+    .max(40, { message: "El email no puede tener más de 40 caracteres." })
     .email({ message: "Por favor, introduce un email válido." })
     .refine(
       (email) => {
@@ -70,16 +70,18 @@ const formSchema = z.object({
     )
     .refine(
       (email) => {
-        // Validar que el dominio sea reconocido
+        // Validar que el dominio sea reconocido o educativo
         const domain = email.split("@")[1]?.toLowerCase();
         const validDomains = [
           "gmail.com", "hotmail.com", "outlook.com", "yahoo.com",
           "icloud.com", "live.com", "msn.com", "aol.com",
           "protonmail.com", "zoho.com"
         ];
-        return validDomains.includes(domain);
+        // Permitir dominios educativos que terminen en .edu, .edu.pe, .edu.mx, etc.
+        const isEducational = /\.edu(\.[a-z]{2})?$/i.test(domain);
+        return validDomains.includes(domain) || isEducational;
       },
-      { message: "Por favor, usa un email de un proveedor reconocido (Gmail, Hotmail, Yahoo, etc)." }
+      { message: "Por favor, usa un email de un proveedor reconocido o una cuenta educativa (.edu)." }
     )
     .refine(
       (email) => {
@@ -179,7 +181,7 @@ export default function SignupPage() {
                         <Input
                           type="email"
                           placeholder="tu@email.com"
-                          maxLength={25}
+                          maxLength={40}
                           {...field}
                         />
                       </FormControl>

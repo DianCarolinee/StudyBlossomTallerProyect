@@ -1,10 +1,8 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import type { StudyGoal } from "@/lib/types";
-import { StudyGoalSchema } from "@/lib/types";
+import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -30,29 +29,105 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+// Schema de validación mejorado
+const StudyGoalSchema = z.object({
+  goalName: z
+    .string()
+    .min(3, { message: "El nombre debe tener al menos 3 caracteres." })
+    .max(30, { message: "El nombre no puede exceder 30 caracteres." })
+    .refine(
+      (value) => {
+        // Debe contener al menos una letra
+        return /[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(value);
+      },
+      { message: "El nombre debe contener al menos una letra." }
+    )
+    .refine(
+      (value) => {
+        // No puede ser solo números
+        return !/^\d+$/.test(value);
+      },
+      { message: "El nombre no puede ser solo números." }
+    )
+    .refine(
+      (value) => {
+        // No puede tener más de 3 caracteres especiales consecutivos
+        return !/[!@#$%^&*()_+=\[\]{};':"\\|,.<>\/?]{4,}/.test(value);
+      },
+      { message: "Demasiados caracteres especiales." }
+    )
+    .refine(
+      (value) => {
+        // Debe tener al menos 40% de letras del total
+        const letters = value.match(/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/g)?.length || 0;
+        return letters >= value.length * 0.4;
+      },
+      { message: "El nombre debe ser principalmente texto." }
+    ),
+  topic: z
+    .string()
+    .min(5, { message: "El tema debe tener al menos 5 caracteres." })
+    .max(100, { message: "El tema no puede exceder 100 caracteres." })
+    .refine(
+      (value) => {
+        // Debe contener al menos una letra
+        return /[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(value);
+      },
+      { message: "El tema debe contener al menos una letra." }
+    )
+    .refine(
+      (value) => {
+        // No puede ser solo números
+        return !/^\d+$/.test(value);
+      },
+      { message: "El tema no puede ser solo números." }
+    )
+    .refine(
+      (value) => {
+        // No puede ser solo caracteres especiales o símbolos
+        return !/^[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]+$/.test(value);
+      },
+      { message: "El tema debe contener texto válido." }
+    )
+    .refine(
+      (value) => {
+        // Debe tener al menos 30% de letras del total
+        const letters = value.match(/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/g)?.length || 0;
+        return letters >= value.length * 0.3;
+      },
+      { message: "El tema debe contener suficiente texto descriptivo." }
+    )
+    .refine(
+      (value) => {
+        // No puede empezar o terminar con espacios
+        return value.trim() === value;
+      },
+      { message: "El tema no puede empezar o terminar con espacios." }
+    ),
+});
+
+type StudyGoalFormValues = z.infer<typeof StudyGoalSchema>;
 
 function CreateGoalContent() {
   const router = useRouter();
   const { user } = useAuth();
   
-  const form = useForm<StudyGoal>({
+  const form = useForm<StudyGoalFormValues>({
     resolver: zodResolver(StudyGoalSchema),
     defaultValues: {
       goalName: "",
-      studyTime: 1,
       topic: "",
     },
   });
 
-  function onSubmit(values: StudyGoal) {
+  function onSubmit(values: StudyGoalFormValues) {
     if (!user) {
         return;
     }
 
     const params = new URLSearchParams({
-        goalName: values.goalName,
-        studyTime: values.studyTime.toString(),
-        topic: values.topic,
+        goalName: values.goalName.trim(),
+        topic: values.topic.trim(),
     });
     router.push(`/recommendation?${params.toString()}`);
   }
@@ -82,34 +157,26 @@ function CreateGoalContent() {
             <CardContent>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="goalName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nombre de la Meta</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Ej: Examen de Cálculo" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="studyTime"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tiempo de Estudio (horas)</FormLabel>
-                          <FormControl>
-                            <Input type="number" min="1" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="goalName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nombre de la Meta</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Ej: Examen de Cálculo" 
+                            maxLength={30}
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Máximo 30 caracteres. {field.value.length}/30
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="topic"
@@ -117,10 +184,15 @@ function CreateGoalContent() {
                       <FormItem>
                         <FormLabel>Tema de Estudio</FormLabel>
                         <FormControl>
-                          <Input placeholder="Ej: Fotosíntesis, Hooks de React" {...field} />
+                          <Textarea 
+                            placeholder="Describe el tema que quieres estudiar. Ej: Fotosíntesis en plantas, Hooks de React y su uso en componentes funcionales, Ecuaciones diferenciales de primer orden"
+                            className="min-h-[100px] resize-none"
+                            maxLength={100}
+                            {...field} 
+                          />
                         </FormControl>
                         <FormDescription>
-                          Esto se usará para generar tus materiales de estudio.
+                          Sé específico para obtener mejores resultados. {field.value.length}/100
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
