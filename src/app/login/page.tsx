@@ -35,7 +35,7 @@ const formSchema = z.object({
   email: z
     .string()
     .min(1, { message: "El email es requerido." })
-    .max(25, { message: "El email no puede tener más de 25 caracteres." })
+    .max(40, { message: "El email no puede tener más de 40 caracteres." })
     .email({ message: "Por favor, introduce un email válido." })
     .refine(
       (email) => {
@@ -54,6 +54,32 @@ const formSchema = z.object({
     )
     .refine(
       (email) => {
+        // No puede tener más de 4 caracteres iguales consecutivos
+        const localPart = email.split("@")[0];
+        return !/(.)\1{4,}/.test(localPart);
+      },
+      { message: "El email no puede tener más de 4 caracteres iguales consecutivos." }
+    )
+    .refine(
+      (email) => {
+        // Debe tener al menos 30% de caracteres únicos (diversidad)
+        const localPart = email.split("@")[0];
+        const uniqueChars = new Set(localPart).size;
+        return uniqueChars >= localPart.length * 0.3;
+      },
+      { message: "El email debe tener mayor variedad de caracteres." }
+    )
+    .refine(
+      (email) => {
+        // No puede tener más del 60% de números
+        const localPart = email.split("@")[0];
+        const numbers = (localPart.match(/\d/g) || []).length;
+        return numbers <= localPart.length * 0.6;
+      },
+      { message: "El email tiene demasiados números." }
+    )
+    .refine(
+      (email) => {
         // Validar que no sean todos números antes del @
         const localPart = email.split("@")[0];
         return !/^\d+$/.test(localPart);
@@ -67,6 +93,22 @@ const formSchema = z.object({
         return /^[a-zA-Z0-9._-]+$/.test(localPart);
       },
       { message: "El email contiene caracteres no válidos." }
+    )
+    .refine(
+      (email) => {
+        // No puede empezar ni terminar con punto o guion
+        const localPart = email.split("@")[0];
+        return !/^[.\-]|[.\-]$/.test(localPart);
+      },
+      { message: "El email no puede empezar o terminar con punto o guion." }
+    )
+    .refine(
+      (email) => {
+        // No puede tener puntos o guiones consecutivos
+        const localPart = email.split("@")[0];
+        return !/[.\-]{2,}/.test(localPart);
+      },
+      { message: "El email no puede tener puntos o guiones consecutivos." }
     )
     .refine(
       (email) => {
@@ -182,7 +224,7 @@ export default function LoginPage() {
                         <Input
                           type="email"
                           placeholder="tu@email.com"
-                          maxLength={25}
+                          maxLength={40}
                           {...field}
                         />
                       </FormControl>
