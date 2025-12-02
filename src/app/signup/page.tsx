@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -33,10 +32,81 @@ import { LoaderCircle } from "lucide-react";
 import { Logo } from "@/components/icons";
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Por favor, introduce un email válido." }),
+  email: z
+    .string()
+    .min(1, { message: "El email es requerido." })
+    .max(40, { message: "El email no puede tener más de 40 caracteres." })
+    .email({ message: "Por favor, introduce un email válido." })
+    .refine(
+      (email) => {
+        const localPart = email.split("@")[0];
+        return localPart.length >= 5;
+      },
+      { message: "El email debe tener al menos 5 caracteres antes del @." }
+    )
+    .refine(
+      (email) => {
+        // Validar que contenga al menos una letra (no solo números)
+        const localPart = email.split("@")[0];
+        return /[a-zA-Z]/.test(localPart);
+      },
+      { message: "El email debe contener al menos una letra." }
+    )
+    .refine(
+      (email) => {
+        // Validar que no sean todos números antes del @
+        const localPart = email.split("@")[0];
+        return !/^\d+$/.test(localPart);
+      },
+      { message: "El email no puede ser solo números." }
+    )
+    .refine(
+      (email) => {
+        // Validar formato general: letras, números, puntos, guiones
+        const localPart = email.split("@")[0];
+        return /^[a-zA-Z0-9._-]+$/.test(localPart);
+      },
+      { message: "El email contiene caracteres no válidos." }
+    )
+    .refine(
+      (email) => {
+        // Validar que el dominio sea reconocido o educativo
+        const domain = email.split("@")[1]?.toLowerCase();
+        const validDomains = [
+          "gmail.com", "hotmail.com", "outlook.com", "yahoo.com",
+          "icloud.com", "live.com", "msn.com", "aol.com",
+          "protonmail.com", "zoho.com"
+        ];
+        // Permitir dominios educativos que terminen en .edu, .edu.pe, .edu.mx, etc.
+        const isEducational = /\.edu(\.[a-z]{2})?$/i.test(domain);
+        return validDomains.includes(domain) || isEducational;
+      },
+      { message: "Por favor, usa un email de un proveedor reconocido o una cuenta educativa (.edu)." }
+    )
+    .refine(
+      (email) => {
+        // Validar que el dominio tenga al menos un punto
+        const domain = email.split("@")[1];
+        return domain && domain.includes(".");
+      },
+      { message: "El dominio del email debe ser válido." }
+    ),
   password: z
     .string()
-    .min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
+    .min(6, { message: "La contraseña debe tener al menos 6 caracteres." })
+    .max(15, { message: "La contraseña no puede tener más de 15 caracteres." })
+    .regex(/[A-Z]/, {
+      message: "La contraseña debe contener al menos una letra mayúscula.",
+    })
+    .regex(/[a-z]/, {
+      message: "La contraseña debe contener al menos una letra minúscula.",
+    })
+    .regex(/[0-9]/, {
+      message: "La contraseña debe contener al menos un número.",
+    })
+    .regex(/[^A-Za-z0-9]/, {
+      message: "La contraseña debe contener al menos un carácter especial.",
+    }),
 });
 
 export default function SignupPage() {
@@ -111,6 +181,7 @@ export default function SignupPage() {
                         <Input
                           type="email"
                           placeholder="tu@email.com"
+                          maxLength={40}
                           {...field}
                         />
                       </FormControl>
@@ -128,6 +199,7 @@ export default function SignupPage() {
                         <Input
                           type="password"
                           placeholder="Mínimo 6 caracteres"
+                          maxLength={15}
                           {...field}
                         />
                       </FormControl>
